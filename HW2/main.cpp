@@ -9,14 +9,14 @@ const double offset = 65535 / 2;
 // The sinewave is created on this pin
 // Adjust analog output pin name to your board spec.
 AnalogOut aout(PA_5);
-
+AnalogIn ain(A5);
 uLCD_4DGL uLCD(D1, D0, D2);//Problem point. connect ulcd 
 DigitalIn button(PC_5);//up
 DigitalIn button2(PC_4);//down
 DigitalIn button3(PC_3);//reset
 DigitalIn mypin(USER_BUTTON);//out data
 int j = 1;
-float ADCdata[130];
+float ADCdata[1000];
 int count;
 int Time[3] = {10,50,100};//cycle time
 
@@ -75,9 +75,9 @@ int main()
                 else
                     sample = (uint16_t)(offset*(TimeNow-i)/FallTime);
                 aout.write_u16(sample);
-                ADCdata[count] = aout;
+                ADCdata[count] = ain;
                 count++;
-                if(count >= 128){
+                if(count >= 1000){
                     for(int i = 0 ; i < count ; i++)
                     {
                         cout<<ADCdata[i]<<"\r\n";
