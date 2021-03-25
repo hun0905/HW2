@@ -1,53 +1,92 @@
 #include "mbed.h"
-#include "mbed.h"
 #include "uLCD_4DGL.h"
-DigitalOut myled(LED1);
+#include<iostream>
+using namespace std;
+const double pi = 3.141592653589793238462;
+const double amplitude = 0.5f;
+const double offset = 65535 / 2;
+
+// The sinewave is created on this pin
+// Adjust analog output pin name to your board spec.
+AnalogOut aout(PA_5);
+
+uLCD_4DGL uLCD(D1, D0, D2);//Problem point. connect ulcd 
 DigitalIn button(PC_5);//up
 DigitalIn button2(PC_4);//down
 DigitalIn button3(PC_3);//reset
-uLCD_4DGL uLCD(D1, D0, D2);
+DigitalIn mypin(USER_BUTTON);//out data
+int j = 1;
+float ADCdata[130];
+int count;
+int Time[3] = {10,50,100};//cycle time
+
+void Display(int &i)
+{
+    uLCD.cls();
+    uLCD.text_width(2); //4X size text
+    uLCD.text_height(2);
+    uLCD.locate(4,4);
+    uLCD.printf("%d",i);
+    uLCD.line(0, 50, 160, 50, 0xFF0000);
+    uLCD.line(0, 90, 160, 90, 0xFF0000);
+}
 
 int main()
 {
-   /*while(1) {
-        myled.write(button.read());    /* read the state of input  pin P1_14 and write it to output port pin LED1*/
-    //}
-    uLCD.text_width(2); //4X size text
-    uLCD.text_height(2);
-    int Frequency[5] = {100,200,300,400,500};
-    int i = 2;
-    while(1){
-        
-        if(button.read()){
-            if(i == 4)
-                i = 0;
-            else
-                i++;
+    //double rads = 0.0;
+    /*button.rise(&up);
+    button2.rise(&down);
+    button3.rise(&reset);*/ //cannot not use this way
+    int TimeNow = Time[j];//cycle time now
+    int RiseTime = TimeNow*3/5;
+    int FallTime = TimeNow*2/5;
+    uint16_t sample = 0;
+    int count = 0;
+    Display(Time[j]);
+    while (1) {
+        if(button){
+             j = (j == 2)?0:j+1;
+            Display(Time[j]);
+            TimeNow = Time[j];
+            RiseTime = TimeNow*3/5;
+            FallTime = TimeNow*2/5;
+            ThisThread::sleep_for(1ms);
         }
-        if(button2.read()){
-            if(i == 0)
-                i = 4;
-            else
-                i--;
+        else if(button2){
+            j = (j == 0)?2:j-1;
+            Display(Time[j]);
+            TimeNow = Time[j];
+            RiseTime = TimeNow*3/5;
+            FallTime = TimeNow*2/5;
+            ThisThread::sleep_for(1ms);
         }
-        if(button3.read()){
-            i = 2;
+        else if(button3){
+            j = 2;
+            Display(Time[j]);
+            TimeNow = Time[j];
+            RiseTime = TimeNow*3/5;
+            FallTime = TimeNow*2/5;
+            ThisThread::sleep_for(1ms);
         }
-        uLCD.locate(3,4);
-        uLCD.printf("%2d",Frequency[i]);
-        uLCD.locate(3,2);
-        if(i != 0)
-            uLCD.printf("%2d",Frequency[i-1]);
-        else
-            uLCD.printf("%2d",Frequency[4]);
-        uLCD.locate(3,6);
-        if(i != 4)
-            uLCD.printf("%2d",Frequency[i+1]);
-        else
-            uLCD.printf("%2d",Frequency[0]);
-        uLCD.line(0, 50, 160, 50, 0xFF0000);
-        uLCD.line(0, 90, 160, 90, 0xFF0000);
-        
-        ThisThread::sleep_for(200ms);
-    }
+        else{
+            for (int i = 0; i < TimeNow; i++) {
+                if(i < TimeNow)   
+                    sample = (uint16_t)(offset*i/RiseTime);
+                else
+                    sample = (uint16_t)(offset*(TimeNow-i)/FallTime);
+                aout.write_u16(sample);
+                ADCdata[count] = aout;
+                count++;
+                if(count >= 128){
+                    for(int i = 0 ; i < count ; i++)
+                    {
+                        cout<<ADCdata[i]<<"\r\n";
+                    }
+                    count = 0;
+                }
+                ThisThread::sleep_for(1ms);
+            }
+        }
+    
+   }
 }
