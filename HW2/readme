@@ -1,2 +1,14 @@
-First of all download the file
-  $git clone
+#First of all download the file
+  $git clone https://github.com/hun0905/HW2.git
+#Then enter HW2 find the main.cpp and compile by command below.
+  $sudo mbed compile --source . --source ~/ee2405/mbed-os-build/ -m B_L4S5I_IOT01A -t GCC_ARM -f
+#we can use the button to control the frequency of the wave by the button and the frequency will display on ulcd. 
+#The way we generate the wave is to use DAC to generate a wave form with the chosen frequency and pass the generated signal through a RC low pass filter.
+#To see the form of the wave, we can open picoscope.
+  $ picoscope&
+#To analysis the data through python,input command below.
+  $sudo python3 FFT.py
+ 
+#By the waveform from python , we can find that the waveform from python is a little unstable compared with that from picoscope.
+#However the form of their waveform is very similar. The reason that make them a little different may because of the way we sample our data, the
+#data we choose or the time we get the data.
