@@ -16,7 +16,7 @@ DigitalIn button2(PC_4);//down
 DigitalIn button3(PC_3);//reset
 DigitalIn mypin(USER_BUTTON);//out data
 int j = 1;
-float ADCdata[1000];
+float ADCdata[5000];
 int count;
 int Time[3] = {10,50,100};//cycle time
 
@@ -25,8 +25,18 @@ void Display(int &i)
     uLCD.cls();
     uLCD.text_width(2); //4X size text
     uLCD.text_height(2);
+    uLCD.locate(4,2);
+    if(i == 0)
+        uLCD.printf("%d",Time[2]);
+    else
+        uLCD.printf("%d",Time[i-1]);
     uLCD.locate(4,4);
-    uLCD.printf("%d",i);
+    uLCD.printf("%d",Time[i]);
+    uLCD.locate(4,6);
+    if(i == 2)
+        uLCD.printf("%d",Time[0]);
+    else
+        uLCD.printf("%d",Time[i+1]);
     uLCD.line(0, 50, 160, 50, 0xFF0000);
     uLCD.line(0, 90, 160, 90, 0xFF0000);
 }
@@ -42,11 +52,11 @@ int main()
     int FallTime = TimeNow*2/5;
     uint16_t sample = 0;
     int count = 0;
-    Display(Time[j]);
+    Display(j);
     while (1) {
         if(button){
              j = (j == 2)?0:j+1;
-            Display(Time[j]);
+            Display(j);
             TimeNow = Time[j];
             RiseTime = TimeNow*3/5;
             FallTime = TimeNow*2/5;
@@ -54,7 +64,7 @@ int main()
         }
         else if(button2){
             j = (j == 0)?2:j-1;
-            Display(Time[j]);
+            Display(j);
             TimeNow = Time[j];
             RiseTime = TimeNow*3/5;
             FallTime = TimeNow*2/5;
@@ -62,7 +72,7 @@ int main()
         }
         else if(button3){
             j = 2;
-            Display(Time[j]);
+            Display(j);
             TimeNow = Time[j];
             RiseTime = TimeNow*3/5;
             FallTime = TimeNow*2/5;
@@ -77,8 +87,8 @@ int main()
                 aout.write_u16(sample);
                 ADCdata[count] = ain;
                 count++;
-                if(count >= 1000){
-                    for(int i = 0 ; i < count ; i++)
+                if(count >= 5000){
+                    for(int i = 0 ; i < 1000 ; i++)
                     {
                         cout<<ADCdata[i]<<"\r\n";
                     }
