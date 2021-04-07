@@ -36,6 +36,7 @@ void Display(int &i)
     if(i == 2)
         uLCD.printf("%d",Time[0]);
     else
+    
         uLCD.printf("%d",Time[i+1]);
     uLCD.line(0, 50, 160, 50, 0xFF0000);
     uLCD.line(0, 90, 160, 90, 0xFF0000);
